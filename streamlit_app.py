@@ -32,14 +32,17 @@ if prompt := st.chat_input("질문을 입력하세요."):
 # Stream the response to the chat using `st.write_stream`, then store it in 
 # session state.
 with st.chat_message("assistant"):
-    if request_uri:
-        data = requests.get(request_uri).json()
-        if data:
-            response = data['message'].replace("~", "\~")
-            display_text = response.split("참고문헌:")
-            st.markdown(display_text[0])
-            if len(display_text) > 1:
-                st.info('**참고문헌:**' + display_text[1])
-            st.session_state.messages.append({"role": "assistant", "content": response})
-        else:
-            st.write("답변을 얻지 못했습니다.")
+    try:
+        if request_uri:
+            data = requests.get(request_uri).json()
+            if data:
+                response = data['message'].replace("~", "\~")
+                display_text = response.split("참고문헌:")
+                st.markdown(display_text[0])
+                if len(display_text) > 1:
+                    st.info('**참고문헌:**' + display_text[1])
+                st.session_state.messages.append({"role": "assistant", "content": response})
+            else:
+                st.write("답변을 얻지 못했습니다.")
+    except RequestsJSONDecodeError:
+        st.error("서버와 통신할 수 없습니다.")
