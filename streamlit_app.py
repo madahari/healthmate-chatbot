@@ -44,5 +44,5 @@ with st.chat_message("assistant"):
                 st.session_state.messages.append({"role": "assistant", "content": response})
             else:
                 st.write("답변을 얻지 못했습니다.")
-    except RequestsJSONDecodeError:
+    except Exception:
         st.error("서버와 통신할 수 없습니다.")
