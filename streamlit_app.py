@@ -26,7 +26,7 @@ if prompt := st.chat_input("질문을 입력하세요."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-    api_url = "https://36fa-39-120-172-64.ngrok-free.app/chat/"
+    api_url = "https://848c-124-58-113-155.ngrok-free.app/chat/"
     request_uri = api_url + prompt
 
 # Stream the response to the chat using `st.write_stream`, then store it in 
