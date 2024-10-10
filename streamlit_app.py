@@ -39,7 +39,7 @@ with st.chat_message("assistant"):
             display_text = response.split("참고문헌:")
             st.markdown(display_text[0])
             if len(display_text) > 1:
-                st.info('**참고문헌:**' + display_text[1].replace(")", ""))
+                st.info('**참고문헌:**' + display_text[1])
             st.session_state.messages.append({"role": "assistant", "content": response})
         else:
             st.write("답변을 얻지 못했습니다.")
