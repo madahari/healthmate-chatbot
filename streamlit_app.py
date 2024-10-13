@@ -5,8 +5,10 @@ request_uri = ""
 # Show title and description.
 st.title("💬 Healthmate Chatbot")
 st.write(
-    "이것은 HealthMate 팀의 건강관련 질문에 답변을 하기위한 ChatBot 입니다."
-)
+        "안녕하세요, 질병은 우리 모두를 힘들게 합니다.\n\n"
+        "이 봇의 목적은 기본적인 의료 정보와 조언을 제공함과 동시에 실제 의료 전문가의 진단을 받아 고통을 줄이고 더 큰 질병을 예방하는 것을 목표로 합니다.\n\n"
+        "궁금한 증상이 무엇인가요? 어떤 의료 조언을 받고 싶으신가요?"
+    )
 
 
 # Create a session state variable to store the chat messages. This ensures that the
