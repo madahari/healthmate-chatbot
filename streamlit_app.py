@@ -47,34 +47,3 @@ with st.chat_message("assistant"):
                 st.write("답변을 얻지 못했습니다.")
     except Exception:
         st.error("서버와 통신할 수 없습니다.")
-
-# 추천 검색어 링크
-st.write("추천 검색어:")
-st.markdown("[검색어1](https://hmchat.streamlit.app/?q=검색어1)")
-st.markdown("[검색어2](https://hmchat.streamlit.app/?q=검색어2)")
-st.markdown("[검색어3](https://hmchat.streamlit.app/?q=검색어3)")
-
-# 링크 클릭 시 질문 자동 입력 및 답변 생성
-query_params = st.experimental_get_query_params()
-if "q" in query_params:
-    question = query_params["q"][0]
-    st.session_state.messages.append({"role": "user", "content": question})
-    with st.chat_message("user"):
-        st.markdown(question)
-    api_url = "https://5c77-124-58-113-155.ngrok-free.app/chat/"
-    request_uri = api_url + question
-    with st.chat_message("assistant"):
-        try:
-            if request_uri:
-                data = requests.get(request_uri).json()
-                if data:
-                    response = data['message'].replace("~", "\~")
-                    display_text = response.split("참고문헌:")
-                    st.markdown(display_text[0])
-                    if len(display_text) > 1:
-                        st.info('**참고문헌:**' + display_text[1])
-                    st.session_state.messages.append({"role": "assistant", "content": response})
-                else:
-                    st.write("답변을 얻지 못했습니다.")
-        except Exception:
-            st.error("서버와 통신할 수 없습니다.")
