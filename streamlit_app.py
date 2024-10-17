@@ -122,3 +122,6 @@ with st.chat_message("assistant"):
                 st.error("서버 응답 오류: " + str(response.status_code))
     except requests.exceptions.RequestException as e:
         st.error("서버와 통신할 수 없습니다: " + str(e))
+
+# Add a note to inform users to scroll up to see the content
+st.markdown("**위로 스크롤하여 전체 내용을 확인하세요.**")
