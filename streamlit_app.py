@@ -22,8 +22,7 @@ st.markdown("""
         width: 300%;
         height: 100vh;
         display: flex;
-        overflow-x: hidden;
-        position: relative;
+        transition: transform 0.3s ease;
     }
     
     .slide {
@@ -68,53 +67,60 @@ st.markdown("""
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
     const slider = document.querySelector('.slider-container');
-    let isDown = false;
     let startX;
-    let scrollLeft;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let isDragging = false;
+    const slideWidth = window.innerWidth;
 
-    slider.addEventListener('mousedown', (e) => {
-        isDown = true;
+    function setSliderPosition() {
+        slider.style.transform = `translateX(${currentTranslate}px)`;
+    }
+
+    function animation() {
+        setSliderPosition();
+        if (isDragging) requestAnimationFrame(animation);
+    }
+
+    function touchStart(event) {
+        startX = event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+        isDragging = true;
         slider.style.cursor = 'grabbing';
-        startX = e.pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-    });
+        requestAnimationFrame(animation);
+    }
 
-    slider.addEventListener('mouseleave', () => {
-        isDown = false;
+    function touchMove(event) {
+        if (isDragging) {
+            const currentX = event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+            const diff = currentX - startX;
+            currentTranslate = prevTranslate + diff;
+        }
+    }
+
+    function touchEnd() {
+        isDragging = false;
+        const movedBy = currentTranslate - prevTranslate;
+
+        if (movedBy < -100 && currentTranslate > -slideWidth * 2) {
+            currentTranslate = prevTranslate - slideWidth;
+        } else if (movedBy > 100 && currentTranslate < 0) {
+            currentTranslate = prevTranslate + slideWidth;
+        } else {
+            currentTranslate = prevTranslate;
+        }
+
+        prevTranslate = currentTranslate;
+        setSliderPosition();
         slider.style.cursor = 'grab';
-    });
+    }
 
-    slider.addEventListener('mouseup', () => {
-        isDown = false;
-        slider.style.cursor = 'grab';
-    });
-
-    slider.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 2;
-        slider.scrollLeft = scrollLeft - walk;
-    });
-
-    // Touch events for mobile
-    slider.addEventListener('touchstart', (e) => {
-        isDown = true;
-        startX = e.touches[0].pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-    });
-
-    slider.addEventListener('touchend', () => {
-        isDown = false;
-    });
-
-    slider.addEventListener('touchmove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.touches[0].pageX - slider.offsetLeft;
-        const walk = (x - startX) * 2;
-        slider.scrollLeft = scrollLeft - walk;
-    });
+    slider.addEventListener('mousedown', touchStart);
+    slider.addEventListener('touchstart', touchStart);
+    slider.addEventListener('mousemove', touchMove);
+    slider.addEventListener('touchmove', touchMove);
+    slider.addEventListener('mouseup', touchEnd);
+    slider.addEventListener('touchend', touchEnd);
+    slider.addEventListener('mouseleave', touchEnd);
 });
 </script>
 """, unsafe_allow_html=True)
