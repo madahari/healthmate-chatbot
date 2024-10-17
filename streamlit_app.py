@@ -8,45 +8,39 @@ st.set_page_config(
     layout="wide"
 )
 
-# Modified CSS with stronger scroll prevention
+# CSS to create two distinct sections
 st.markdown("""
 <style>
-    /* Disable auto-scrolling for the entire app */
-    .main .block-container {
-        padding-bottom: 0px !important;
-        padding-top: 0px !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
-    
-    /* Remove default scrolling behavior */
-    .stApp {
-        overflow: visible !important;
-        height: auto !important;
-    }
-    
-    /* Force static positioning */
-    .element-container, .stMarkdown {
-        position: static !important;
-    }
-    
-    /* Custom scrollable chat area */
-    .custom-chat-container {
-        max-height: 600px;
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* Create fixed top section */
+    .fixed-content {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        z-index: 999;
+        padding: 2rem;
+        height: 100vh;
         overflow-y: auto;
-        margin: 1rem 0;
-        padding: 1rem;
-        border: 1px solid #e0e0e0;
-        border-radius: 0.5rem;
     }
     
-    /* Prevent streamlit's default scroll handlers */
-    [data-testid="stVerticalBlock"] {
-        gap: 0 !important;
-        height: auto !important;
+    /* Create scrollable chat section */
+    .chat-section {
+        position: absolute;
+        top: 100vh;
+        left: 0;
+        right: 0;
+        background: white;
+        min-height: 100vh;
+        padding: 2rem;
     }
     
-    /* Keep styling */
+    /* Styling */
     .main-title {
         font-size: 2.5rem;
         font-weight: bold;
@@ -67,21 +61,44 @@ st.markdown("""
         font-size: 1.1rem;
         margin-bottom: 1.5rem;
     }
-
-    /* Ensure chat input stays at bottom */
+    
+    /* Chat container styling */
+    .chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Make chat input sticky at bottom */
     .stChatInputContainer {
         position: sticky;
         bottom: 0;
         background: white;
         padding: 1rem 0;
-        z-index: 100;
+        z-index: 1000;
     }
 </style>
 
 <script>
-    // Disable Streamlit's automatic scrolling
-    window.addEventListener('load', function() {
-        window.streamlitScrollToBottom = function() {};
+    // Disable automatic scrolling
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const preventScroll = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has('chat')) {
+                window.scrollTo(0, 0);
+            }
+        };
+        
+        window.addEventListener('scroll', preventScroll);
+        
+        // Add click handler to "Start Chat" button
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('start-chat')) {
+                window.removeEventListener('scroll', preventScroll);
+                const chatSection = document.querySelector('.chat-section');
+                chatSection.scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState({}, '', '?chat=true');
+            }
+        });
     });
 </script>
 """, unsafe_allow_html=True)
@@ -89,8 +106,11 @@ st.markdown("""
 # Initialize session state
 if 'messages' not in st.session_state:
     st.session_state.messages = []
+    
+# Fixed top section
+st.markdown('<div class="fixed-content">', unsafe_allow_html=True)
 
-def main():
+def render_onboarding():
     # Onboarding Section 1
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -126,12 +146,18 @@ def main():
         st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>'
                    '제공해 드릴게요.</div>', 
                    unsafe_allow_html=True)
+        
+        # Add "Start Chat" button
+        st.markdown('<button class="start-chat stButton">시작하기</button>', unsafe_allow_html=True)
 
-if __name__ == "__main__":
-    main()
+render_onboarding()
+st.markdown('</div>', unsafe_allow_html=True)
 
-# Create custom chat container
-st.markdown('<div class="custom-chat-container">', unsafe_allow_html=True)
+# Scrollable chat section
+st.markdown('<div class="chat-section">', unsafe_allow_html=True)
+st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+
+# Display chat messages
 for message in reversed(st.session_state.messages):
     with st.chat_message(message["role"]):
         if message["role"] == "assistant":
@@ -141,9 +167,8 @@ for message in reversed(st.session_state.messages):
                 st.info('**참고문헌:**' + display_text[1])
         else:
             st.markdown(message["content"])
-st.markdown('</div>', unsafe_allow_html=True)
 
-# Create a chat input field
+# Chat input
 prompt = st.chat_input("질문을 입력하세요.")
 
 if prompt:
@@ -169,3 +194,5 @@ if prompt:
                 st.error("서버 응답 오류: " + str(response.status_code))
     except requests.exceptions.RequestException as e:
         st.error("서버와 통신할 수 없습니다: " + str(e))
+
+st.markdown('</div></div>', unsafe_allow_html=True)
