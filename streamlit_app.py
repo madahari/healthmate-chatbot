@@ -1,23 +1,29 @@
 import streamlit as st
 import requests
 
-# Page config should be at the top
+# Page config
 st.set_page_config(
     page_title="Health Mate",
     page_icon="🏥",
     layout="wide"
 )
 
-# CSS to disable scrolling while maintaining the original layout
+# CSS to disable scrolling and show only col1 content
 st.markdown("""
 <style>
-    /* Disable scrolling */
+    /* Disable scrolling and show only col1 */
     .main .block-container {
         max-width: 100%;
         padding-top: 0;
         padding-bottom: 0;
         overflow: hidden;
         height: 100vh;
+    }
+    
+    /* Hide col2 and col3 */
+    [data-testid="column"]:nth-child(2), 
+    [data-testid="column"]:nth-child(3) {
+        display: none !important;
     }
     
     /* Content styling */
@@ -32,15 +38,6 @@ st.markdown("""
         text-align: center;
         margin-bottom: 2rem;
     }
-    .section-title {
-        font-size: 1.8rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-    }
-    .section-text {
-        font-size: 1.1rem;
-        margin-bottom: 1.5rem;
-    }
     
     /* Chat container */
     .stChatFloatingInputContainer {
@@ -48,7 +45,8 @@ st.markdown("""
         bottom: 0;
         background: white;
         z-index: 101;
-        width: 100%;
+        width: 33.33%; /* Matches the width of col1 */
+        left: 0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -58,9 +56,9 @@ if 'messages' not in st.session_state:
     st.session_state.messages = []
 
 def main():
-    # Onboarding Section 1
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
         st.markdown('<div class="main-title">언제 어디서나,<br>내 손 안의 건강 비서<br>Health Mate</div>', 
                    unsafe_allow_html=True)
         st.markdown('<div class="subtitle">Health Mate에 오신 것을 환영합니다!<br>건강 관리의 새로운 동반자를 만나보세요.</div>', 
@@ -68,31 +66,7 @@ def main():
         
         st.image("online-learning0.svg", use_column_width=True)
 
-    st.divider()
-
-    # Onboarding Section 2
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image("group0.svg", use_column_width=True)
-        
-        st.markdown('<div class="section-title">궁금한 증상이나 질병에<br>대해 질문해주세요.</div>', 
-                   unsafe_allow_html=True)
-        st.markdown('<div class="section-text">궁금한 증상이나 질병이 있다면 언제든지 질문해 주세요. '
-                   '전문가 수준의 정보를 친절하게 안내해 드릴게요.</div>', 
-                   unsafe_allow_html=True)
-
-    st.divider()
-
-    # Onboarding Section 3
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image("subscribe0.svg", use_column_width=True)
-        
-        st.markdown('<div class="section-title">맞춤형 정보 제공으로<br>쉽고, 자세하게 알려드려요.</div>', 
-                   unsafe_allow_html=True)
-        st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>'
-                   '제공해 드릴게요.</div>', 
-                   unsafe_allow_html=True)
+    # col2 and col3 content is removed to prevent auto-scrolling
 
 if __name__ == "__main__":
     main()
