@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Simplified CSS focusing only on essential scroll fixes
+# Simplified CSS focusing on essential scroll fixes and column layout
 st.markdown("""
 <style>
     /* Reset Streamlit's default scroll behavior */
@@ -24,7 +24,7 @@ st.markdown("""
         overflow: visible !important;
     }
     
-    /* Keep content styling */
+    /* Content styling */
     .main-title {
         font-size: 2.5rem;
         font-weight: bold;
@@ -53,6 +53,25 @@ st.markdown("""
         background: white;
         z-index: 101;
     }
+
+    /* Column layout */
+    .column-container {
+        display: flex;
+        height: calc(100vh - 80px); /* Adjust based on your header/footer height */
+    }
+    .fixed-column {
+        width: 25%;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    .scrollable-column {
+        width: 50%;
+        overflow-y: auto;
+        height: 100%;
+        padding: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -62,41 +81,52 @@ if 'messages' not in st.session_state:
     st.session_state.should_scroll = False
 
 def main():
+    st.markdown('<div class="column-container">', unsafe_allow_html=True)
+    
+    # Fixed left column (col1)
+    st.markdown('<div class="fixed-column">', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Scrollable middle column (col2)
+    st.markdown('<div class="scrollable-column">', unsafe_allow_html=True)
+    
     # Onboarding Section 1
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown('<div class="main-title">언제 어디서나,<br>내 손 안의 건강 비서<br>Health Mate</div>', 
-                   unsafe_allow_html=True)
-        st.markdown('<div class="subtitle">Health Mate에 오신 것을 환영합니다!<br>건강 관리의 새로운 동반자를 만나보세요.</div>', 
-                   unsafe_allow_html=True)
-        
-        st.image("online-learning0.svg", use_column_width=True)
+    st.markdown('<div class="main-title">언제 어디서나,<br>내 손 안의 건강 비서<br>Health Mate</div>', 
+               unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Health Mate에 오신 것을 환영합니다!<br>건강 관리의 새로운 동반자를 만나보세요.</div>', 
+               unsafe_allow_html=True)
+    
+    st.image("online-learning0.svg", use_column_width=True)
 
     st.divider()
 
     # Onboarding Section 2
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image("group0.svg", use_column_width=True)
-        
-        st.markdown('<div class="section-title">궁금한 증상이나 질병에<br>대해 질문해주세요.</div>', 
-                   unsafe_allow_html=True)
-        st.markdown('<div class="section-text">궁금한 증상이나 질병이 있다면 언제든지 질문해 주세요. '
-                   '전문가 수준의 정보를 친절하게 안내해 드릴게요.</div>', 
-                   unsafe_allow_html=True)
+    st.image("group0.svg", use_column_width=True)
+    
+    st.markdown('<div class="section-title">궁금한 증상이나 질병에<br>대해 질문해주세요.</div>', 
+               unsafe_allow_html=True)
+    st.markdown('<div class="section-text">궁금한 증상이나 질병이 있다면 언제든지 질문해 주세요. '
+               '전문가 수준의 정보를 친절하게 안내해 드릴게요.</div>', 
+               unsafe_allow_html=True)
 
     st.divider()
 
     # Onboarding Section 3
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image("subscribe0.svg", use_column_width=True)
-        
-        st.markdown('<div class="section-title">맞춤형 정보 제공으로<br>쉽고, 자세하게 알려드려요.</div>', 
-                   unsafe_allow_html=True)
-        st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>'
-                   '제공해 드릴게요.</div>', 
-                   unsafe_allow_html=True)
+    st.image("subscribe0.svg", use_column_width=True)
+    
+    st.markdown('<div class="section-title">맞춤형 정보 제공으로<br>쉽고, 자세하게 알려드려요.</div>', 
+               unsafe_allow_html=True)
+    st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>'
+               '제공해 드릴게요.</div>', 
+               unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Fixed right column (col3)
+    st.markdown('<div class="fixed-column">', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
