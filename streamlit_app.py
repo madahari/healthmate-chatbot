@@ -8,20 +8,35 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS to prevent auto-scrolling and for custom styling
+# Modified CSS to prevent auto-scrolling and enable manual scrolling
 st.markdown("""
 <style>
-    .element-container {
-        overflow-y: auto;
+    /* Remove default auto-scrolling behavior */
+    .main .block-container {
+        overflow-y: visible;
+        max-height: none;
     }
+    
+    /* Enable scrolling for the whole page */
     .stApp {
-        overflow: hidden;
+        height: auto;
+        overflow-y: visible;
     }
+    
+    /* Make the chat container scrollable independently */
+    .chat-container {
+        max-height: 600px;
+        overflow-y: auto;
+        margin-bottom: 2rem;
+    }
+    
+    /* Keep other styling */
     .main-title {
         font-size: 2.5rem;
         font-weight: bold;
         text-align: center;
         margin-bottom: 1rem;
+        position: relative;
     }
     .subtitle {
         font-size: 1.2rem;
@@ -39,6 +54,7 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
 # Initialize session state
 if 'messages' not in st.session_state:
     st.session_state.messages = []
@@ -83,8 +99,21 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Create a fixed height container for chat messages
+# Create a chat container with custom class
 chat_container = st.container()
+with chat_container:
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    # Display chat messages in reverse order
+    for message in reversed(st.session_state.messages):
+        with st.chat_message(message["role"]):
+            if message["role"] == "assistant":
+                display_text = message["content"].split("참고문헌:")
+                st.markdown(display_text[0])
+                if len(display_text) > 1:
+                    st.info('**참고문헌:**' + display_text[1])
+            else:
+                st.markdown(message["content"])
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Create a chat input field
 prompt = st.chat_input("질문을 입력하세요.")
@@ -113,15 +142,3 @@ if prompt:
                 st.error("서버 응답 오류: " + str(response.status_code))
     except requests.exceptions.RequestException as e:
         st.error("서버와 통신할 수 없습니다: " + str(e))
-
-# Display chat messages in reverse order
-with chat_container:
-    for message in reversed(st.session_state.messages):
-        with st.chat_message(message["role"]):
-            if message["role"] == "assistant":
-                display_text = message["content"].split("참고문헌:")
-                st.markdown(display_text[0])
-                if len(display_text) > 1:
-                    st.info('**참고문헌:**' + display_text[1])
-            else:
-                st.markdown(message["content"])
