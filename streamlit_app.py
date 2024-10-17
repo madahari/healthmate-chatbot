@@ -4,7 +4,9 @@ import requests
 request_uri = ""
 # Show title and description.
 st.title("💬 Healthmate Chatbot")
+
 # 디자인적용
+def main():
     # Page config
     st.set_page_config(
         page_title="Health Mate",
@@ -77,7 +79,8 @@ st.title("💬 Healthmate Chatbot")
                    '제공해 드릴게요.</div>', 
                    unsafe_allow_html=True)
 # 디자인적용 끝        
-
+if __name__ == "__main__":
+    main()
 # Create a session state variable to store the chat messages. This ensures that the
 # messages persist across reruns.
 if "messages" not in st.session_state:
