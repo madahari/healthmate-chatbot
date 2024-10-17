@@ -8,15 +8,15 @@ st.set_page_config(
     layout="wide"
 )
 
-request_uri = ""
-# Show title and description.
-st.title("💬 Healthmate Chatbot")
-
-# 디자인적용
-def main():
-    # CSS for custom styling
-    st.markdown("""
-    <style>
+# CSS to prevent auto-scrolling and for custom styling
+st.markdown("""
+<style>
+    .element-container {
+        overflow-y: auto;
+    }
+    .stApp {
+        overflow: hidden;
+    }
     .main-title {
         font-size: 2.5rem;
         font-weight: bold;
@@ -37,9 +37,10 @@ def main():
         font-size: 1.1rem;
         margin-bottom: 1.5rem;
     }
-    </style>
-    """, unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
+def main():
     # Onboarding Section 1
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -48,7 +49,6 @@ def main():
         st.markdown('<div class="subtitle">Health Mate에 오신 것을 환영합니다!<br>건강 관리의 새로운 동반자를 만나보세요.</div>', 
                    unsafe_allow_html=True)
         
-        # Here you would load and display the online-learning0.svg image
         st.image("online-learning0.svg", use_column_width=True)
 
     st.divider()
@@ -56,7 +56,6 @@ def main():
     # Onboarding Section 2
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Here you would load and display the group0.svg image
         st.image("group0.svg", use_column_width=True)
         
         st.markdown('<div class="section-title">궁금한 증상이나 질병에<br>대해 질문해주세요.</div>', 
@@ -70,7 +69,6 @@ def main():
     # Onboarding Section 3
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Here you would load and display the subscribe0.svg image
         st.image("subscribe0.svg", use_column_width=True)
         
         st.markdown('<div class="section-title">맞춤형 정보 제공으로<br>쉽고, 자세하게 알려드려요.</div>', 
@@ -78,32 +76,26 @@ def main():
         st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>'
                    '제공해 드릴게요.</div>', 
                    unsafe_allow_html=True)
-# 디자인적용 끝        
+
 if __name__ == "__main__":
     main()
-# Create a session state variable to store the chat messages. This ensures that the
-# messages persist across reruns.
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 
-# Display the existing chat messages via `st.chat_message`.
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Create a fixed height container for chat messages
+chat_container = st.container()
 
-# Create a chat input field to allow the user to enter a message. This will display
-# automatically at the bottom of the page.
-if prompt := st.chat_input("질문을 입력하세요."):
-    # Store and display the current prompt.
+# Create a chat input field
+prompt = st.chat_input("질문을 입력하세요.")
+
+if prompt:
+    # Add new message to session state
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    
+    # Process the response
     api_url = "https://36a5-124-58-113-155.ngrok-free.app/chat/"
     request_uri = api_url + prompt
-
-# Stream the response to the chat using `st.write`, then store it in 
-# session state.
-with st.chat_message("assistant"):
+    
     try:
         if request_uri:
             response = requests.get(request_uri)
@@ -111,10 +103,6 @@ with st.chat_message("assistant"):
                 data = response.json()
                 if data:
                     response_text = data['message'].replace("~", "\~")
-                    display_text = response_text.split("참고문헌:")
-                    st.markdown(display_text[0])
-                    if len(display_text) > 1:
-                        st.info('**참고문헌:**' + display_text[1])
                     st.session_state.messages.append({"role": "assistant", "content": response_text})
                 else:
                     st.write("답변을 얻지 못했습니다.")
@@ -123,5 +111,14 @@ with st.chat_message("assistant"):
     except requests.exceptions.RequestException as e:
         st.error("서버와 통신할 수 없습니다: " + str(e))
 
-# Add a note to inform users to scroll up to see the content
-st.markdown("**위로 스크롤하여 전체 내용을 확인하세요.**")
+# Display chat messages in reverse order
+with chat_container:
+    for message in reversed(st.session_state.messages):
+        with st.chat_message(message["role"]):
+            if message["role"] == "assistant":
+                display_text = message["content"].split("참고문헌:")
+                st.markdown(display_text[0])
+                if len(display_text) > 1:
+                    st.info('**참고문헌:**' + display_text[1])
+            else:
+                st.markdown(message["content"])
