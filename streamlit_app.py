@@ -13,43 +13,43 @@ st.markdown("""
 <style>
     .main .block-container {
         max-width: 100%;
-        padding-top: 0;
-        padding-bottom: 0;
+        padding: 0;
         overflow: hidden;
     }
-    
+
     .slider-container {
-        width: 300%;
-        height: 100vh;
         display: flex;
         transition: transform 0.3s ease;
+        width: 300%; /* Adjust width to hold three slides */
     }
-    
+
     .slide {
-        width: 33.33%;
-        flex-shrink: 0;
-        height: 100%;
-        overflow-y: auto;
+        flex: 0 0 33.33%; /* Each slide takes 1/3 of the slider width */
+        height: 100vh;
         padding: 20px;
         box-sizing: border-box;
+        overflow-y: auto;
     }
-    
+
     .main-title {
         font-size: 2.5rem;
         font-weight: bold;
         text-align: center;
         margin-bottom: 1rem;
     }
+
     .subtitle {
         font-size: 1.2rem;
         text-align: center;
         margin-bottom: 2rem;
     }
+
     .section-title {
         font-size: 1.8rem;
         font-weight: bold;
         margin-bottom: 1rem;
     }
+
     .section-text {
         font-size: 1.1rem;
         margin-bottom: 1.5rem;
@@ -65,62 +65,57 @@ st.markdown("""
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', () => {
     const slider = document.querySelector('.slider-container');
-    let startX;
+    let startX = 0;
     let currentTranslate = 0;
-    let prevTranslate = 0;
+    let previousTranslate = 0;
     let isDragging = false;
-    const slideWidth = window.innerWidth;
+    const slideWidth = slider.offsetWidth / 3;
 
     function setSliderPosition() {
         slider.style.transform = `translateX(${currentTranslate}px)`;
     }
 
-    function animation() {
-        setSliderPosition();
-        if (isDragging) requestAnimationFrame(animation);
-    }
-
-    function touchStart(event) {
-        startX = event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+    function handleTouchStart(event) {
+        startX = event.type === 'touchstart' ? event.touches[0].clientX : event.pageX;
         isDragging = true;
         slider.style.cursor = 'grabbing';
-        requestAnimationFrame(animation);
     }
 
-    function touchMove(event) {
+    function handleTouchMove(event) {
         if (isDragging) {
-            const currentX = event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+            const currentX = event.type === 'touchmove' ? event.touches[0].clientX : event.pageX;
             const diff = currentX - startX;
-            currentTranslate = prevTranslate + diff;
+            currentTranslate = previousTranslate + diff;
+            setSliderPosition();
         }
     }
 
-    function touchEnd() {
+    function handleTouchEnd() {
         isDragging = false;
-        const movedBy = currentTranslate - prevTranslate;
+        const movedBy = currentTranslate - previousTranslate;
 
         if (movedBy < -100 && currentTranslate > -slideWidth * 2) {
-            currentTranslate = prevTranslate - slideWidth;
+            currentTranslate = previousTranslate - slideWidth;
         } else if (movedBy > 100 && currentTranslate < 0) {
-            currentTranslate = prevTranslate + slideWidth;
+            currentTranslate = previousTranslate + slideWidth;
         } else {
-            currentTranslate = prevTranslate;
+            currentTranslate = previousTranslate;
         }
 
-        prevTranslate = currentTranslate;
+        previousTranslate = currentTranslate;
         setSliderPosition();
         slider.style.cursor = 'grab';
     }
 
-    slider.addEventListener('mousedown', touchStart);
-    slider.addEventListener('touchstart', touchStart);
-    slider.addEventListener('mousemove', touchMove);
-    slider.addEventListener('touchmove', touchMove);
-    slider.addEventListener('mouseup', touchEnd);
-    slider.addEventListener('touchend', touchEnd);
-    slider.addEventListener('mouseleave', touchEnd);
+    slider.addEventListener('mousedown', handleTouchStart);
+    slider.addEventListener('touchstart', handleTouchStart);
+    slider.addEventListener('mousemove', handleTouchMove);
+    slider.addEventListener('touchmove', handleTouchMove);
+    slider.addEventListener('mouseup', handleTouchEnd);
+    slider.addEventListener('touchend', handleTouchEnd);
+    slider.addEventListener('mouseleave', handleTouchEnd);
 });
 </script>
 """, unsafe_allow_html=True)
@@ -152,7 +147,7 @@ def main():
     st.markdown('<div class="section-title">맞춤형 정보 제공으로<br>쉽고, 자세하게 알려드려요.</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>제공해 드릴게요.</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-    
+
     st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
@@ -185,7 +180,7 @@ if prompt:
             if response.status_code == 200:
                 data = response.json()
                 if data:
-                    response_text = data['message'].replace("~", "\~")
+                    response_text = data['message'].replace("~", "\\~")
                     st.session_state.messages.append({"role": "assistant", "content": response_text})
                 else:
                     st.write("답변을 얻지 못했습니다.")
