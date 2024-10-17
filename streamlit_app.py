@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS and JavaScript for slide functionality
+# CSS and JavaScript for horizontal swipe functionality
 st.markdown("""
 <style>
     .main .block-container {
@@ -20,13 +20,19 @@ st.markdown("""
     
     .slider-container {
         width: 300%;
+        height: 100vh;
         display: flex;
-        transition: transform 0.5s ease;
+        overflow-x: hidden;
+        position: relative;
     }
     
     .slide {
         width: 33.33%;
         flex-shrink: 0;
+        height: 100%;
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
     }
     
     .main-title {
@@ -50,44 +56,66 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    .nav-buttons {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 10px;
-    }
-    
-    .nav-button {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        cursor: pointer;
-    }
-    
     .stChatFloatingInputContainer {
         position: fixed;
         bottom: 0;
         background: white;
         z-index: 101;
-        width: 100%;
+        width: 33.33%;
     }
 </style>
 
 <script>
-function slide(direction) {
-    const container = document.querySelector('.slider-container');
-    let currentTransform = new WebKitCSSMatrix(window.getComputedStyle(container).transform).e;
-    const slideWidth = document.querySelector('.slide').offsetWidth;
-    
-    if (direction === 'next' && currentTransform > -slideWidth * 2) {
-        container.style.transform = `translateX(${currentTransform - slideWidth}px)`;
-    } else if (direction === 'prev' && currentTransform < 0) {
-        container.style.transform = `translateX(${currentTransform + slideWidth}px)`;
-    }
-}
+document.addEventListener('DOMContentLoaded', (event) => {
+    const slider = document.querySelector('.slider-container');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.style.cursor = 'grabbing';
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+    });
+
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2;
+        slider.scrollLeft = scrollLeft - walk;
+    });
+
+    // Touch events for mobile
+    slider.addEventListener('touchstart', (e) => {
+        isDown = true;
+        startX = e.touches[0].pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('touchend', () => {
+        isDown = false;
+    });
+
+    slider.addEventListener('touchmove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2;
+        slider.scrollLeft = scrollLeft - walk;
+    });
+});
 </script>
 """, unsafe_allow_html=True)
 
@@ -120,14 +148,6 @@ def main():
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Navigation buttons
-    st.markdown("""
-    <div class="nav-buttons">
-        <button class="nav-button" onclick="slide('prev')">이전</button>
-        <button class="nav-button" onclick="slide('next')">다음</button>
-    </div>
-    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
