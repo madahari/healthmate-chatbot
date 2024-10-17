@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS and JavaScript for horizontal swipe functionality
+# CSS and JavaScript for horizontal swipe or click functionality
 st.markdown("""
 <style>
     .main .block-container {
@@ -19,12 +19,12 @@ st.markdown("""
 
     .slider-container {
         display: flex;
-        transition: transform 0.3s ease;
-        width: 300%; /* Adjust width to hold three slides */
+        transition: transform 0.3s ease-in-out;
+        width: 300%; /* for 3 slides */
     }
 
     .slide {
-        flex: 0 0 33.33%; /* Each slide takes 1/3 of the slider width */
+        flex: 0 0 100%; /* Each slide takes the full screen width */
         height: 100vh;
         padding: 20px;
         box-sizing: border-box;
@@ -60,63 +60,54 @@ st.markdown("""
         bottom: 0;
         background: white;
         z-index: 101;
-        width: 33.33%;
+        width: 100%; /* Adjust width to cover the chat area */
+    }
+
+    .navigation-buttons {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .nav-button {
+        cursor: pointer;
+        padding: 10px 20px;
+        border-radius: 5px;
+        background-color: #007BFF;
+        color: white;
+        margin: 0 10px;
+        border: none;
+        transition: background-color 0.2s;
+    }
+
+    .nav-button:hover {
+        background-color: #0056b3;
     }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const slider = document.querySelector('.slider-container');
-    let startX = 0;
-    let currentTranslate = 0;
-    let previousTranslate = 0;
-    let isDragging = false;
-    const slideWidth = slider.offsetWidth / 3;
-
-    function setSliderPosition() {
-        slider.style.transform = `translateX(${currentTranslate}px)`;
-    }
-
-    function handleTouchStart(event) {
-        startX = event.type === 'touchstart' ? event.touches[0].clientX : event.pageX;
-        isDragging = true;
-        slider.style.cursor = 'grabbing';
-    }
-
-    function handleTouchMove(event) {
-        if (isDragging) {
-            const currentX = event.type === 'touchmove' ? event.touches[0].clientX : event.pageX;
-            const diff = currentX - startX;
-            currentTranslate = previousTranslate + diff;
-            setSliderPosition();
-        }
-    }
-
-    function handleTouchEnd() {
-        isDragging = false;
-        const movedBy = currentTranslate - previousTranslate;
-
-        if (movedBy < -100 && currentTranslate > -slideWidth * 2) {
-            currentTranslate = previousTranslate - slideWidth;
-        } else if (movedBy > 100 && currentTranslate < 0) {
-            currentTranslate = previousTranslate + slideWidth;
-        } else {
-            currentTranslate = previousTranslate;
+    document.addEventListener('DOMContentLoaded', () => {
+        const slider = document.querySelector('.slider-container');
+        let currentIndex = 0;
+        const slidesCount = 3; 
+        
+        function updateSliderPosition() {
+            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
         }
 
-        previousTranslate = currentTranslate;
-        setSliderPosition();
-        slider.style.cursor = 'grab';
-    }
+        function handleNavClick(direction) {
+            if (direction === 'next' && currentIndex < slidesCount - 1) {
+                currentIndex++;
+                updateSliderPosition();
+            } else if (direction === 'prev' && currentIndex > 0) {
+                currentIndex--;
+                updateSliderPosition();
+            }
+        }
 
-    slider.addEventListener('mousedown', handleTouchStart);
-    slider.addEventListener('touchstart', handleTouchStart);
-    slider.addEventListener('mousemove', handleTouchMove);
-    slider.addEventListener('touchmove', handleTouchMove);
-    slider.addEventListener('mouseup', handleTouchEnd);
-    slider.addEventListener('touchend', handleTouchEnd);
-    slider.addEventListener('mouseleave', handleTouchEnd);
-});
+        // Add navigation buttons click listeners
+        document.querySelector('.prev-button').addEventListener('click', () => handleNavClick('prev'));
+        document.querySelector('.next-button').addEventListener('click', () => handleNavClick('next'));
+    });
 </script>
 """, unsafe_allow_html=True)
 
@@ -126,7 +117,7 @@ if 'messages' not in st.session_state:
 
 def main():
     st.markdown('<div class="slider-container">', unsafe_allow_html=True)
-    
+
     # Slide 1
     st.markdown('<div class="slide">', unsafe_allow_html=True)
     st.markdown('<div class="main-title">언제 어디서나,<br>내 손 안의 건강 비서<br>Health Mate</div>', unsafe_allow_html=True)
@@ -148,6 +139,12 @@ def main():
     st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>제공해 드릴게요.</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Navigation buttons
+    st.markdown('<div class="navigation-buttons">', unsafe_allow_html=True)
+    st.markdown('<button class="nav-button prev-button">이전</button>', unsafe_allow_html=True)
+    st.markdown('<button class="nav-button next-button">다음</button>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
