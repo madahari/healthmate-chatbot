@@ -1,19 +1,19 @@
 import streamlit as st
 import requests
 
+# Page config should be at the top
+st.set_page_config(
+    page_title="Health Mate",
+    page_icon="🏥",
+    layout="wide"
+)
+
 request_uri = ""
 # Show title and description.
 st.title("💬 Healthmate Chatbot")
 
 # 디자인적용
 def main():
-    # Page config
-    st.set_page_config(
-        page_title="Health Mate",
-        page_icon="🏥",
-        layout="wide"
-    )
-
     # CSS for custom styling
     st.markdown("""
     <style>
@@ -101,20 +101,24 @@ if prompt := st.chat_input("질문을 입력하세요."):
     api_url = "https://36a5-124-58-113-155.ngrok-free.app/chat/"
     request_uri = api_url + prompt
 
-# Stream the response to the chat using `st.write_stream`, then store it in 
+# Stream the response to the chat using `st.write`, then store it in 
 # session state.
 with st.chat_message("assistant"):
     try:
         if request_uri:
-            data = requests.get(request_uri).json()
-            if data:
-                response = data['message'].replace("~", "\~")
-                display_text = response.split("참고문헌:")
-                st.markdown(display_text[0])
-                if len(display_text) > 1:
-                    st.info('**참고문헌:**' + display_text[1])
-                st.session_state.messages.append({"role": "assistant", "content": response})
+            response = requests.get(request_uri)
+            if response.status_code == 200:
+                data = response.json()
+                if data:
+                    response_text = data['message'].replace("~", "\~")
+                    display_text = response_text.split("참고문헌:")
+                    st.markdown(display_text[0])
+                    if len(display_text) > 1:
+                        st.info('**참고문헌:**' + display_text[1])
+                    st.session_state.messages.append({"role": "assistant", "content": response_text})
+                else:
+                    st.write("답변을 얻지 못했습니다.")
             else:
-                st.write("답변을 얻지 못했습니다.")
-    except Exception:
-        st.error("서버와 통신할 수 없습니다.")
+                st.error("서버 응답 오류: " + str(response.status_code))
+    except requests.exceptions.RequestException as e:
+        st.error("서버와 통신할 수 없습니다: " + str(e))
