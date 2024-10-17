@@ -4,11 +4,79 @@ import requests
 request_uri = ""
 # Show title and description.
 st.title("💬 Healthmate Chatbot")
-st.write(
-    "안녕하세요, 질병은 우리 모두를 힘들게 합니다.\n\n"
-    "이 봇의 목적은 기본적인 의료 정보와 조언을 제공함과 동시에 실제 의료 전문가의 진단을 받아 고통을 줄이고 더 큰 질병을 예방하는 것을 목표로 합니다.\n\n"
-    "궁금한 증상이 무엇인가요? 어떤 의료 조언을 받고 싶으신가요?"
-)
+# 디자인적용
+    # Page config
+    st.set_page_config(
+        page_title="Health Mate",
+        page_icon="🏥",
+        layout="wide"
+    )
+
+    # CSS for custom styling
+    st.markdown("""
+    <style>
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .subtitle {
+        font-size: 1.2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    .section-text {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Onboarding Section 1
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown('<div class="main-title">언제 어디서나,<br>내 손 안의 건강 비서<br>Health Mate</div>', 
+                   unsafe_allow_html=True)
+        st.markdown('<div class="subtitle">Health Mate에 오신 것을 환영합니다!<br>건강 관리의 새로운 동반자를 만나보세요.</div>', 
+                   unsafe_allow_html=True)
+        
+        # Here you would load and display the online-learning0.svg image
+        st.image("online-learning0.svg", use_column_width=True)
+
+    st.divider()
+
+    # Onboarding Section 2
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        # Here you would load and display the group0.svg image
+        st.image("group0.svg", use_column_width=True)
+        
+        st.markdown('<div class="section-title">궁금한 증상이나 질병에<br>대해 질문해주세요.</div>', 
+                   unsafe_allow_html=True)
+        st.markdown('<div class="section-text">궁금한 증상이나 질병이 있다면 언제든지 질문해 주세요. '
+                   '전문가 수준의 정보를 친절하게 안내해 드릴게요.</div>', 
+                   unsafe_allow_html=True)
+
+    st.divider()
+
+    # Onboarding Section 3
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        # Here you would load and display the subscribe0.svg image
+        st.image("subscribe0.svg", use_column_width=True)
+        
+        st.markdown('<div class="section-title">맞춤형 정보 제공으로<br>쉽고, 자세하게 알려드려요.</div>', 
+                   unsafe_allow_html=True)
+        st.markdown('<div class="section-text">여러분에게 가장 관련성 높은 정보를 쉽고 자세하게<br>'
+                   '제공해 드릴게요.</div>', 
+                   unsafe_allow_html=True)
+# 디자인적용 끝        
 
 # Create a session state variable to store the chat messages. This ensures that the
 # messages persist across reruns.
